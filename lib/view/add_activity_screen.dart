@@ -13,23 +13,39 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
   String type = '';
   int duration = 0;
   int calories = 0;
+  bool _isLoading = false;
 
   void saveToFirebase() async {
-    await FirebaseFirestore.instance.collection('activities').add({
-      'type': type,
-      'duration': duration,
-      'calories': calories,
-      'date': DateTime.now().toIso8601String(),
-    });
+    setState(() => _isLoading = true);
 
-    if (kDebugMode) {
-      print("Activity saved: $type, Duration: $duration, Calories: $calories");
+    try {
+      await FirebaseFirestore.instance.collection('activities').add({
+        'type': type,
+        'duration': duration,
+        'calories': calories,
+        'date': DateTime.now().toIso8601String(),
+      });
+
+      if (kDebugMode) {
+        print(
+          "Activity saved: $type, Duration: $duration, Calories: $calories",
+        );
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("🎉 Activity saved!")));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProgressScreen()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error saving activity: $e")));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("🎉 Activity saved!")));
-    Navigator.pop(context);
   }
 
   @override
@@ -90,9 +106,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                       onSaved: (val) => calories = int.tryParse(val ?? '') ?? 0,
                     ),
                     const SizedBox(height: 32),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.save),
-                      label: Text("Save Activity"),
+                    ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,
                         padding: EdgeInsets.symmetric(vertical: 16),
@@ -100,11 +114,37 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
-                        _formKey.currentState?.save();
-                        saveToFirebase();
-                      },
+                      onPressed:
+                          _isLoading
+                              ? null
+                              : () {
+                                _formKey.currentState?.save();
+                                saveToFirebase();
+                              },
+                      child:
+                          _isLoading
+                              ? SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                              : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.save),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Save Activity",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
                     ),
+
                     const SizedBox(height: 12),
                     TextButton.icon(
                       icon: Icon(Icons.bar_chart),
