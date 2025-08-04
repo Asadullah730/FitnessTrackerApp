@@ -20,13 +20,16 @@ class _ExportScreenState extends State<ExportScreen> {
 
     try {
       // Ask for storage permission
-      var status = await Permission.storage.request();
-      if (!status.isGranted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Permission denied')));
-        setState(() => isExporting = false);
-        return;
+      if (Platform.isAndroid) {
+        if (await Permission.manageExternalStorage.request().isGranted) {
+          // permission granted, continue
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Permission denied')));
+          setState(() => isExporting = false);
+          return;
+        }
       }
 
       // Fetch activities
@@ -54,7 +57,9 @@ class _ExportScreenState extends State<ExportScreen> {
       final csv = const ListToCsvConverter().convert(rows);
 
       // Get file path
-      final directory = await getExternalStorageDirectory();
+      final directory =
+          await getApplicationDocumentsDirectory(); // No permission needed
+
       final path = "${directory!.path}/fitness_export.csv";
       final file = File(path);
 
@@ -93,10 +98,13 @@ class _ExportScreenState extends State<ExportScreen> {
                 ? CircularProgressIndicator(color: Colors.deepPurple)
                 : ElevatedButton.icon(
                   onPressed: exportCSV,
-                  icon: Icon(Icons.download),
-                  label: Text("Export CSV"),
+                  icon: Icon(Icons.download, color: Colors.white),
+                  label: Text(
+                    "Export CSV",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.deepPurple[400],
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   ),
                 ),
