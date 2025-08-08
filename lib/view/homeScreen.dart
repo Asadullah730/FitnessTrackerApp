@@ -18,8 +18,12 @@ class Homescreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: Text("Fitness Tracker"),
+        title: Text(
+          "Fitness Tracker",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.deepPurple,
+        automaticallyImplyLeading: false,
         centerTitle: true,
       ),
       body: SingleChildScrollView(

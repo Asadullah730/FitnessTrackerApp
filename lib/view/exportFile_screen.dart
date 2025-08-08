@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitness_tracker_app/view/homeScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
@@ -90,7 +92,12 @@ class _ExportScreenState extends State<ExportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Export Progress"),
+        centerTitle: true,
         backgroundColor: Colors.deepPurple,
+        leading: IconButton(
+          icon: Icon(Icons.home),
+          onPressed: () => Get.to(() => Homescreen()),
+        ),
       ),
       body: Center(
         child:
