@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fitness_tracker_app/firebase_options.dart';
 import 'package:fitness_tracker_app/view/add_activity_screen.dart';
+import 'package:fitness_tracker_app/view/authpages/loginpage.dart';
 import 'package:fitness_tracker_app/view/homeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       // home: Homescreen(),
-      home: AddActivityScreen(),
+      // home: AddActivityScreen(),
+      home: LoginScreen(),
     );
   }
 }
