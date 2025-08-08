@@ -94,23 +94,57 @@ class ProgressScreen extends StatelessWidget {
                         if (selectedType.value != "All" &&
                             data['type'] != selectedType.value)
                           return SizedBox();
-                        return Card(
-                          child: ListTile(
-                            title: Text("${data['type']}"),
-                            subtitle: Text(
-                              "${data['duration']} min | ${data['calories']} cal",
-                            ),
-                            onTap:
-                                () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => EditActivityScreen(
-                                          docId: act.id,
-                                          existingData: data,
-                                        ),
-                                  ),
+                        return Dismissible(
+                          key: Key(act.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            color: Colors.red,
+                            child: Icon(Icons.delete, color: Colors.white),
+                          ),
+                          onDismissed: (direction) async {
+                            final deletedDoc = Map<String, dynamic>.from(
+                              data,
+                            ); // Backup
+                            await FirebaseFirestore.instance
+                                .collection('activities')
+                                .doc(act.id)
+                                .delete();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Activity deleted'),
+                                action: SnackBarAction(
+                                  label: 'UNDO',
+                                  onPressed: () async {
+                                    await FirebaseFirestore.instance
+                                        .collection('activities')
+                                        .doc(act.id)
+                                        .set(deletedDoc);
+                                  },
                                 ),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            child: ListTile(
+                              title: Text("${data['type']}"),
+                              subtitle: Text(
+                                "${data['duration']} min | ${data['calories']} cal",
+                              ),
+                              onTap:
+                                  () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => EditActivityScreen(
+                                            docId: act.id,
+                                            existingData: data,
+                                          ),
+                                    ),
+                                  ),
+                            ),
                           ),
                         );
                       }).toList(),
